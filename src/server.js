@@ -1,5 +1,6 @@
 // Import the express module
 const express = require('express');
+const { adminAuth, userAuth } = require("./middlewares/auth")
 
 // Create an express app
 const app = express();
@@ -7,9 +8,25 @@ const app = express();
 // Define a port
 const PORT = 3333;
 
+app.use('/admin', adminAuth)
 
+app.use("/user", userAuth)
+
+app.get("/admin/getUserData", (req, res) => {
+  res.send("All user Data")
+})
+
+app.get("/admin/deleteUser", (req, res) => {
+  res.send("Deleted user successfully!");
+})
+
+app.get("/user/login", (req, res) => {
+  res.send("user Data Fetched succesfully!");
+})
+
+/*
 app.use('/user',
-  (req, res, next) => {
+  [(req, res, next) => {
     console.log('Handle route -1')
     // res.send("1st route handler!");
     next();
@@ -19,13 +36,27 @@ app.use('/user',
     console.log('handle route -2');
     // res.send("2nd route handler!");
     next();
-  },
+  }],
 
   (req, res, next) => {
     console.log("handle route -3");
-    res.send("3rd route handler!");
+    // res.send("3rd route handler!");
+    next();
+  },
+
+  (req, res, next) => {
+    console.log("handle route -4");
+    // res.send("4th route handler!");
+    next();
+  },
+
+   (req, res, next) => {
+    console.log("handle route -5");
+    res.send("5th route handler!");
   }
 )
+*/
+
 
 /*
 
