@@ -7,6 +7,28 @@ const app = express();
 // Define a port
 const PORT = 3333;
 
+
+app.use('/user',
+  (req, res, next) => {
+    console.log('Handle route -1')
+    // res.send("1st route handler!");
+    next();
+  },
+
+  (req, res, next) => {
+    console.log('handle route -2');
+    // res.send("2nd route handler!");
+    next();
+  },
+
+  (req, res, next) => {
+    console.log("handle route -3");
+    res.send("3rd route handler!");
+  }
+)
+
+/*
+
 //if don't write the 'b' it will work
 app.get('/ab?cd',(req,res) => {
   console.log(res.query)
@@ -46,6 +68,8 @@ app.delete('/remove',(req,res) => {
 app.use('/test',(req,res) => {
   res.send("data get from the Test!");
 })
+
+*/
 
 // Start the server
 app.listen(PORT, () => {
