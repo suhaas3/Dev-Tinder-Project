@@ -2,11 +2,27 @@
 const express = require('express');
 const { adminAuth, userAuth } = require("./middlewares/auth")
 const { connectDb } = require('./config/database');
+const User = require("./models/user");
 
 // Create an express app
 const app = express();
 // Define a port
 const PORT = 3333;
+
+app.post("/signup", async (req, res) => {
+  //create a new instance of the user
+  const user = new User({
+    firstName: "arya",
+    lastName: "sourya",
+    emailId: "arya@gmail.com",
+    password: "aryalove-com",
+    age: 25,
+    gender: "male"
+  })
+
+  await user.save();
+  res.send("user signup successfully!");
+})
 
 /*
 app.use("/", (err, req, res, next) => {
