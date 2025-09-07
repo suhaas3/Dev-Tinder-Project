@@ -1,14 +1,14 @@
 // Import the express module
 const express = require('express');
 const { adminAuth, userAuth } = require("./middlewares/auth")
+const { connectDb } = require('./config/database');
 
 // Create an express app
 const app = express();
-
 // Define a port
 const PORT = 3333;
 
-
+/*
 app.use("/", (err, req, res, next) => {
   if (err) {
     res.status(404).send("unexpected server error");
@@ -29,6 +29,7 @@ app.use("/", (err, req, res, next) => {
     res.status(404).send("unexpected server error");
   }
 })
+  */
 
 
 /*
@@ -128,6 +129,13 @@ app.use('/test',(req,res) => {
 */
 
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server is listening at http://localhost:${PORT}`);
-});
+connectDb()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server is listening at http://localhost:${PORT}`);
+    });
+    console.log("Database is Connected successfully...");
+  })
+  .catch((err) => {
+    console.log("Connection Error:", err.message);
+  })
