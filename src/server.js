@@ -75,11 +75,20 @@ app.delete('/user', async (req, res) => {
 
 app.patch('/updateUser', async (req, res) => {
   const data = req.body;
-  // const {userId} = req.body;
-  const { emailId } = req.body;
-  console.log(data, 'user id');
+  const {userId} = req.body;
+  // const { emailId } = req.body;
+  // console.log(data, 'user id');
 
   try {
+    const ALLOWED_UPDATES = ["userId", "about","age","gender","skills","lastName"]
+
+    const isUpdateAllowed = Object.keys(data).every((k) =>
+      ALLOWED_UPDATES.includes(k)
+    )
+
+    if(!isUpdateAllowed) {
+      throw new Error("Update not allowed");
+    }
     //update user by ID
     // const updateUser = await User.findByIdAndUpdate(userId, data, {
     //   returnDocument: 'after'
@@ -87,8 +96,9 @@ app.patch('/updateUser', async (req, res) => {
     // res.send(updateUser)
 
     //update user by email
-    const updateUserByEmail = await User.findOneAndUpdate({ emailId: emailId }, data, {
-      returnDocument: 'after'
+    const updateUserByEmail = await User.findByIdAndUpdate(userId, data, {
+      returnDocument: 'after',
+      runValidators: true
     });
     res.send(updateUserByEmail)
 
