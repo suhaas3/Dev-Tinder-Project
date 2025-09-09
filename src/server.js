@@ -9,19 +9,31 @@ const app = express();
 // Define a port
 const PORT = 3333;
 
-app.post("/signup", async (req, res) => {
-  //create a new instance of the user
-  const user = new User({
-    firstName: "arya",
-    lastName: "sourya",
-    emailId: "arya@gmail.com",
-    password: "aryalove-com",
-    age: 25,
-    gender: "male"
-  })
+//convert all the json data into javaScript object
+app.use(express.json())
 
-  await user.save();
-  res.send("user signup successfully!");
+app.post("/signup", async (req, res) => {
+
+  const userPost = req.body;
+  console.log(userPost, "user post");
+
+  try {
+    const user = new User(req.body);
+    //create a new instance of the user
+    // const user = new User({
+    //   firstName: "arya",
+    //   lastName: "sourya",
+    //   emailId: "arya@gmail.com",
+    //   password: "aryalove-com",
+    //   age: 25,
+    //   gender: "male"
+    // })
+
+    await user.save();
+    res.send("user signup successfully!");
+  } catch (err) {
+    res.status(400).send("Bad request:" + err.message);
+  }
 })
 
 /*
