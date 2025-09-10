@@ -3,6 +3,8 @@ const express = require('express');
 const { adminAuth, userAuth } = require("./middlewares/auth")
 const { connectDb } = require('./config/database');
 const User = require("./models/user");
+const {validateSignUpData} = require("./Utils/validation");
+const bcrypt = require('bcrypt');
 
 // Create an express app
 const app = express();
@@ -14,10 +16,18 @@ app.use(express.json())
 
 app.post("/signup", async (req, res) => {
 
-  const userPost = req.body;
-
   try {
-    const user = new User(req.body);
+    //validation of data
+    validateSignUpData(req);
+    const { firstName, lastName, emailId, password, skills } = req.body;
+
+    //encrypt the password
+    const passwordHash = await bcrypt.hash(password, 4);
+    console.log(passwordHash);
+
+    const user = new User({
+      firstName, lastName, emailId, password: passwordHash, skills
+    });
     //create a new instance of the user
     // const user = new User({
     //   firstName: "arya",
@@ -73,18 +83,18 @@ app.delete('/user', async (req, res) => {
 
 app.patch('/updateUser', async (req, res) => {
   const data = req.body;
-  const {userId} = req.body;
+  const { userId } = req.body;
   // const { emailId } = req.body;
   // console.log(data, 'user id');
 
   try {
-    const ALLOWED_UPDATES = ["userId", "about","age","gender","skills","lastName"]
+    const ALLOWED_UPDATES = ["userId", "about", "age", "gender", "skills", "lastName"]
 
     const isUpdateAllowed = Object.keys(data).every((k) =>
       ALLOWED_UPDATES.includes(k)
     )
 
-    if(!isUpdateAllowed) {
+    if (!isUpdateAllowed) {
       throw new Error("Update not allowed");
     }
     //update user by ID

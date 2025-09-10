@@ -62,11 +62,14 @@ const userSchema = new mongoose.Schema({
     type: [String],
     validate: {
       validator: function (val) {
-        return Array.isArray(val) && val.length > 2 && val.length < 10;
+        return Array.isArray(val) && val.length >= 3 && val.length <= 9;
       },
-      message: "Skills must be more than 2 and less than 10"
+      message: "Skills must be between 3 and 9"
     }
   }
-}, { timestamps: true })
+
+
+},
+  { timestamps: true })
 
 module.exports = mongoose.model("User", userSchema);
