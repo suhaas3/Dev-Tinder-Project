@@ -115,6 +115,28 @@ app.patch('/updateUser', async (req, res) => {
   }
 })
 
+app.post('/login', async(req, res) => {
+  try {
+    const {emailId, password} = req.body;
+
+    const user = await User.findOne({emailId: emailId});
+    if (!user) {
+      throw new Error("Invalid email id")
+    }
+
+    console.log(user,"userdata")
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (isPasswordValid) {
+      res.send("Login successfully!!");
+    } else {
+      throw new Error("Password incorrect")
+    }
+  } catch (err) {
+    res.status(400).send("Invalid credentials");
+  }
+})
+
 
 /*
 app.use("/", (err, req, res, next) => {
