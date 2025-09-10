@@ -15,7 +15,6 @@ app.use(express.json())
 app.post("/signup", async (req, res) => {
 
   const userPost = req.body;
-  console.log(userPost, "user post");
 
   try {
     const user = new User(req.body);
@@ -63,7 +62,6 @@ app.get("/feedUser", async (req, res) => {
 //delete the user that is FindByIdAndDelete
 app.delete('/user', async (req, res) => {
   const userId = req.body;
-  console.log(userId, 'deleted user');
   try {
     const deleteUser = await User.findOneAndDelete(userId);
     res.send("user Deleted:" + deleteUser);

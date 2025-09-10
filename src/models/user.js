@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     trim: true,
     validate(value) {
       if (!validator.isEmail(value)) {
-        throw new Error('Invalid Email:'+value);
+        throw new Error('Invalid Email:' + value);
       }
     }
   },
@@ -59,7 +59,13 @@ const userSchema = new mongoose.Schema({
     default: "This is default description",
   },
   skills: {
-    type: [String]
+    type: [String],
+    validate: {
+      validator: function (val) {
+        return Array.isArray(val) && val.length > 2 && val.length < 10;
+      },
+      message: "Skills must be more than 2 and less than 10"
+    }
   }
 }, { timestamps: true })
 
