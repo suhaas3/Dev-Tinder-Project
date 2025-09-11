@@ -59,6 +59,10 @@ app.get('/userProfile', userAuth, async (req, res) => {
   }
 })
 
+app.post("/sendConnectionRequest", userAuth, async (req,res,next) => {
+  const {user} = req;
+  res.send(user.firstName + "  send connection request...");
+})
 //GET all users in database
 app.get("/feedUser", async (req, res) => {
   try {
@@ -126,15 +130,14 @@ app.post('/login', async (req, res) => {
 
     // console.log(user,"userdata")
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await user.verifyPassword(password);
 
 
     if (isPasswordValid) {
       //create a JWT token
 
 
-      const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$790");
-
+      const token = await user.getJwt();
       //Add the token to cookie and send the response back to the user
       res.cookie("token", token, {
         httpOnly: true,
