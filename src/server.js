@@ -3,9 +3,10 @@ const express = require('express');
 const { adminAuth, userAuth } = require("./middlewares/auth")
 const { connectDb } = require('./config/database');
 const User = require("./models/user");
-const {validateSignUpData} = require("./Utils/validation");
+const { validateSignUpData } = require("./Utils/validation");
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
+const jwt = require("jsonwebtoken");
 
 // Create an express app
 const app = express();
@@ -50,20 +51,31 @@ app.post("/signup", async (req, res) => {
 //GET user by email
 app.get('/userProfile', async (req, res) => {
 
-  const cookies = req.cookies;
+  try {
+    const cookies = req.cookies;
 
-  console.log(cookies);
-  res.send("reading cookies");
+    const { token } = cookies;
 
-  // const { emailId } = req.query;
+    if (!token) {
+      throw new Error("Invalid token")
+    }
 
-  // try {
-  //   const findUser = await User.find({ emailId });
+    // verify a token symmetric - synchronous
+    const decodedMessage = await jwt.verify(token, "DEV@Tinder$790");
 
-  //   res.send(findUser);
-  // } catch (err) {
-  //   res.status(400).send("User Not Found:" + err.message);
-  // }
+    const { _id } = decodedMessage;
+
+    const { emailId } = req.query;
+
+    const user = await User.findById(_id);
+    res.send(user)
+    
+    if (!user) {
+      throw new Error("user does not exist");
+    }
+  } catch (err) {
+    res.status(400).send("User Not Found:" + err.message);
+  }
 })
 
 //GET all users in database
@@ -122,11 +134,11 @@ app.patch('/updateUser', async (req, res) => {
   }
 })
 
-app.post('/login', async(req, res) => {
+app.post('/login', async (req, res) => {
   try {
-    const {emailId, password} = req.body;
+    const { emailId, password } = req.body;
 
-    const user = await User.findOne({emailId: emailId});
+    const user = await User.findOne({ emailId: emailId });
     if (!user) {
       throw new Error("Invalid email id")
     }
@@ -134,12 +146,23 @@ app.post('/login', async(req, res) => {
     // console.log(user,"userdata")
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    console.log(user._id);
+
     if (isPasswordValid) {
       //create a JWT token
 
-      //Add the token to cookie and send the response back to the user 
-      res.cookie("token","qwertyuiopasdfghjklzxcvbnm");
-      res.send("Login successfully!!");
+
+      const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$790");
+
+      //Add the token to cookie and send the response back to the user
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: false,       // change to true if using HTTPS
+        sameSite: "strict"
+      });
+      // res.send("Login successfully!!");
+      res.send("Login successful");
     } else {
       throw new Error("Password incorrect")
     }
