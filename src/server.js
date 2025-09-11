@@ -5,6 +5,7 @@ const { connectDb } = require('./config/database');
 const User = require("./models/user");
 const {validateSignUpData} = require("./Utils/validation");
 const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
 
 // Create an express app
 const app = express();
@@ -13,6 +14,7 @@ const PORT = 3333;
 
 //convert all the json data into javaScript object
 app.use(express.json())
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
 
@@ -23,7 +25,7 @@ app.post("/signup", async (req, res) => {
 
     //encrypt the password
     const passwordHash = await bcrypt.hash(password, 4);
-    console.log(passwordHash);
+    // console.log(passwordHash);
 
     const user = new User({
       firstName, lastName, emailId, password: passwordHash, skills
@@ -46,17 +48,22 @@ app.post("/signup", async (req, res) => {
 })
 
 //GET user by email
-app.get('/user', async (req, res) => {
+app.get('/userProfile', async (req, res) => {
 
-  const { emailId } = req.query;
+  const cookies = req.cookies;
 
-  try {
-    const findUser = await User.find({ emailId });
+  console.log(cookies);
+  res.send("reading cookies");
 
-    res.send(findUser);
-  } catch (err) {
-    res.status(400).send("User Not Found:" + err.message);
-  }
+  // const { emailId } = req.query;
+
+  // try {
+  //   const findUser = await User.find({ emailId });
+
+  //   res.send(findUser);
+  // } catch (err) {
+  //   res.status(400).send("User Not Found:" + err.message);
+  // }
 })
 
 //GET all users in database
@@ -124,10 +131,14 @@ app.post('/login', async(req, res) => {
       throw new Error("Invalid email id")
     }
 
-    console.log(user,"userdata")
+    // console.log(user,"userdata")
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
+      //create a JWT token
+
+      //Add the token to cookie and send the response back to the user 
+      res.cookie("token","qwertyuiopasdfghjklzxcvbnm");
       res.send("Login successfully!!");
     } else {
       throw new Error("Password incorrect")
