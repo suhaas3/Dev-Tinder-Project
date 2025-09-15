@@ -1,6 +1,7 @@
 const express = require("express");
 const { userAuth } = require("../middlewares/auth");
-const { validateEditData } = require("../Utils/validation");
+const { validateEditData, validateEditPassword } = require("../Utils/validation");
+const bcrypt = require('bcrypt');
 const profileRouter = express.Router();
 
 
@@ -16,6 +17,7 @@ profileRouter.get('/profile/view', userAuth, async (req, res) => {
   }
 })
 
+//update the profile
 profileRouter.patch('/profile/edit', userAuth, async (req, res) => {
 
   try {
@@ -29,13 +31,39 @@ profileRouter.patch('/profile/edit', userAuth, async (req, res) => {
     Object.keys(req.body).forEach((key) => (loggedInUser[key] = req.body[key]))
 
     await loggedInUser.save();
-    
+
     res.send(`${loggedInUser.firstName} , profile updated successfully...`)
 
   } catch (err) {
     res.status(400).send("ERROR: " + err.message);
   }
 
+})
+
+//change password API
+profileRouter.patch('/profile/password', userAuth, async (req, res) => {
+
+  try {
+
+    if (!validateEditPassword(req)) {
+      throw new Error("Not able to change the password!")
+    }
+
+    const loggedInUser = req.user;
+    const {password} = req.body;
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    loggedInUser.password = passwordHash;
+
+    await loggedInUser.save();
+
+
+    res.send("ur able to change password...")
+  }
+  catch (err) {
+    res.status(400).send("ERROR: " + err.message);
+  }
 })
 
 
