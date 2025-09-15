@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 const jwt = require("jsonwebtoken");
 const { userAuth } = require('./middlewares/auth');
 const authRouter = require('./routes/auth');
+const profileRouter = require('./routes/profile');
 
 // Create an express app
 const app = express();
@@ -19,17 +20,7 @@ app.use(express.json())
 app.use(cookieParser());
 
 app.use('/', authRouter);
-
-//GET user by email
-app.get('/userProfile', userAuth, async (req, res) => {
-
-  try {
-    const user = req.user;
-    res.send(user);
-  } catch (err) {
-    res.status(400).send("ERROR: " + err.message);
-  }
-})
+app.use('/', profileRouter);
 
 app.post("/sendConnectionRequest", userAuth, async (req,res,next) => {
   const {user} = req;
