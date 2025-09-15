@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const jwt = require("jsonwebtoken");
 const { userAuth } = require('./middlewares/auth');
+const authRouter = require('./routes/auth');
 
 // Create an express app
 const app = express();
@@ -17,36 +18,7 @@ const PORT = 3333;
 app.use(express.json())
 app.use(cookieParser());
 
-app.post("/signup", async (req, res) => {
-
-  try {
-    //validation of data
-    validateSignUpData(req);
-    const { firstName, lastName, emailId, password, skills } = req.body;
-
-    //encrypt the password
-    const passwordHash = await bcrypt.hash(password, 4);
-    // console.log(passwordHash);
-
-    const user = new User({
-      firstName, lastName, emailId, password: passwordHash, skills
-    });
-    //create a new instance of the user
-    // const user = new User({
-    //   firstName: "arya",
-    //   lastName: "sourya",
-    //   emailId: "arya@gmail.com",
-    //   password: "aryalove-com",
-    //   age: 25,
-    //   gender: "male"
-    // })
-
-    await user.save();
-    res.send("user signup successfully!");
-  } catch (err) {
-    res.status(400).send("Bad request:" + err.message);
-  }
-})
+app.use('/', authRouter);
 
 //GET user by email
 app.get('/userProfile', userAuth, async (req, res) => {
@@ -119,40 +91,6 @@ app.patch('/updateUser', async (req, res) => {
   }
 })
 
-app.post('/login', async (req, res) => {
-  try {
-    const { emailId, password } = req.body;
-
-    const user = await User.findOne({ emailId: emailId });
-    if (!user) {
-      throw new Error("Invalid email id")
-    }
-
-    // console.log(user,"userdata")
-
-    const isPasswordValid = await user.verifyPassword(password);
-
-
-    if (isPasswordValid) {
-      //create a JWT token
-
-
-      const token = await user.getJwt();
-      //Add the token to cookie and send the response back to the user
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: false,       // change to true if using HTTPS
-        sameSite: "strict"
-      });
-      // res.send("Login successfully!!");
-      res.send("Login successful");
-    } else {
-      throw new Error("Password incorrect")
-    }
-  } catch (err) {
-    res.status(400).send("Invalid credentials");
-  }
-})
 
 
 
