@@ -1,6 +1,6 @@
 const express = require("express");
 const { userAuth } = require("../middlewares/auth");
-const { validateEditData, validateEditPassword } = require("../Utils/validation");
+const { validateEditData, validateEditPassword, validateEmailForPasswordChange } = require("../Utils/validation");
 const bcrypt = require('bcrypt');
 const profileRouter = express.Router();
 
@@ -50,7 +50,7 @@ profileRouter.patch('/profile/password', userAuth, async (req, res) => {
     }
 
     const loggedInUser = req.user;
-    const {password} = req.body;
+    const { password } = req.body;
 
     const passwordHash = await bcrypt.hash(password, 10);
 
@@ -62,6 +62,26 @@ profileRouter.patch('/profile/password', userAuth, async (req, res) => {
     res.send("ur able to change password...")
   }
   catch (err) {
+    res.status(400).send("ERROR: " + err.message);
+  }
+})
+
+//forget password API
+profileRouter.patch('/profile/forgetPassword', userAuth, async (req, res) => {
+  try {
+    await validateEmailForPasswordChange(req);
+
+    const { password } = req.body;
+    const loggedInUser = req.user;
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    loggedInUser.password = passwordHash;
+
+    await loggedInUser.save();
+
+    res.send("password updated successfully...");
+  } catch (err) {
     res.status(400).send("ERROR: " + err.message);
   }
 })
