@@ -9,6 +9,7 @@ const jwt = require("jsonwebtoken");
 const { userAuth } = require('./middlewares/auth');
 const authRouter = require('./routes/auth');
 const profileRouter = require('./routes/profile');
+const requestRouter = require('./routes/request');
 
 // Create an express app
 const app = express();
@@ -21,66 +22,7 @@ app.use(cookieParser());
 
 app.use('/', authRouter);
 app.use('/', profileRouter);
-
-app.post("/sendConnectionRequest", userAuth, async (req,res,next) => {
-  const {user} = req;
-  res.send(user.firstName + "  send connection request...");
-})
-//GET all users in database
-app.get("/feedUser", async (req, res) => {
-  try {
-    const allUsers = await User.find({});
-    res.send(allUsers)
-  } catch (err) {
-    res.status(400).send("Not users in database:" + err.message);
-  }
-})
-
-//delete the user that is FindByIdAndDelete
-app.delete('/user', async (req, res) => {
-  const userId = req.body;
-  try {
-    const deleteUser = await User.findOneAndDelete(userId);
-    res.send("user Deleted:" + deleteUser);
-  } catch (err) {
-    res.status(400).send("Something went wrong:" + err.message);
-  }
-})
-
-
-app.patch('/updateUser', async (req, res) => {
-  const data = req.body;
-  const { userId } = req.body;
-  // const { emailId } = req.body;
-  // console.log(data, 'user id');
-
-  try {
-    const ALLOWED_UPDATES = ["userId", "about", "age", "gender", "skills", "lastName"]
-
-    const isUpdateAllowed = Object.keys(data).every((k) =>
-      ALLOWED_UPDATES.includes(k)
-    )
-
-    if (!isUpdateAllowed) {
-      throw new Error("Update not allowed");
-    }
-    //update user by ID
-    // const updateUser = await User.findByIdAndUpdate(userId, data, {
-    //   returnDocument: 'after'
-    // })
-    // res.send(updateUser)
-
-    //update user by email
-    const updateUserByEmail = await User.findByIdAndUpdate(userId, data, {
-      returnDocument: 'after',
-      runValidators: true
-    });
-    res.send(updateUserByEmail)
-
-  } catch (err) {
-    res.status(400).send("something went wrong :" + err.message)
-  }
-})
+app.use('/', requestRouter);
 
 
 
