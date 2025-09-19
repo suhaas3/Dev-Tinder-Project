@@ -18,7 +18,7 @@ const connetionRequestSchema = new mongoose.Schema({
       message: `{VALUE} is not supported!`
     }
   }
-})
+}, {timestamps: true})
 
 connetionRequestSchema.index({ fromUserId: 1, toUserId: 1 })
 
