@@ -55,7 +55,7 @@ authRouter.post('/login', async (req, res) => {
         sameSite: "strict"
       });
       // res.send("Login successfully!!");
-      res.send("Login successful");
+      res.send(user);
     } else {
       throw new Error("Password incorrect")
     }
