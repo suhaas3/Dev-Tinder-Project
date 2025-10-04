@@ -12,18 +12,26 @@ authRouter.post("/signup", async (req, res) => {
   try {
     //validation of data
     validateSignUpData(req);
-    const { firstName, lastName, emailId, password, skills } = req.body;
+    const { firstName, lastName, emailId, password } = req.body;
 
     //encrypt the password
     const passwordHash = await bcrypt.hash(password, 4);
     // console.log(passwordHash);
 
     const user = new User({
-      firstName, lastName, emailId, password: passwordHash, skills
+      firstName, lastName, emailId, password: passwordHash
     });
   
-    await user.save();
-    res.send("user signup successfully!");
+    const savedUser = await user.save();
+    const token = await savedUser.getJwt();
+
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 8 * 3600000)
+    })
+
+    res.json({message :"user signup successfully!",
+      data: savedUser
+    });
   } catch (err) {
     res.status(400).send("Bad request:" + err.message);
   }

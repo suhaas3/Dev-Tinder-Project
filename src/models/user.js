@@ -62,8 +62,13 @@ const userSchema = new mongoose.Schema({
   },
   skills: {
     type: [String],
+    required: false,
     validate: {
       validator: function (val) {
+        // If not provided, or empty, allow it
+        if (!val || val.length === 0) return true;
+
+        // Otherwise enforce 3–9 skills
         return Array.isArray(val) && val.length >= 3 && val.length <= 9;
       },
       message: "Skills must be between 3 and 9"
@@ -74,7 +79,7 @@ const userSchema = new mongoose.Schema({
 },
   { timestamps: true })
 
-  userSchema.index({firstName: 1, lastName: 1});
+userSchema.index({ firstName: 1, lastName: 1 });
 
 userSchema.methods.getJwt = async function () {
 
@@ -88,9 +93,9 @@ userSchema.methods.getJwt = async function () {
 userSchema.methods.verifyPassword = async function (password) {
   const user = this;
 
-   const isPasswordValid = await bcrypt.compare(password, this.password);
-  
-   return isPasswordValid;
+  const isPasswordValid = await bcrypt.compare(password, this.password);
+
+  return isPasswordValid;
 }
 
 module.exports = mongoose.model("User", userSchema);
