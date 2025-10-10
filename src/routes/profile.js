@@ -62,7 +62,7 @@ profileRouter.patch('/profile/password', userAuth, async (req, res) => {
     await loggedInUser.save();
 
 
-    res.send("ur able to change password...")
+    res.send("change password successfully...")
   }
   catch (err) {
     res.status(400).send("ERROR: " + err.message);
