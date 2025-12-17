@@ -16,7 +16,7 @@ const cors = require('cors');
 // Create an express app
 const app = express();
 // Define a port
-const PORT = 3333;
+const PORT = process.env.PORT || 3333;
 
 //convert all the json data into javaScript object
 app.use(express.json())
